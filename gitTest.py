@@ -47,7 +47,7 @@ fourth_place1 = fourth_place.value_counts()
 teams = pd.concat([winners1, runners_up1, third_place1, fourth_place1], axis=1)
 teams = teams.fillna(0)
 teams = teams.astype(int)
-#print(teams)
+print(teams)
 
 #Growth of the competition over time
 goals_per_game = (world_cups.loc[ :, ["Year", "QualifiedTeams", "MatchesPlayed", "GoalsScored"]])
