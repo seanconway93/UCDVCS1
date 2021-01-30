@@ -1,15 +1,11 @@
-from typing import Union, Any
-
 import pandas as pd
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
-from numpy.core._multiarray_umath import ndarray
 from pandas import DataFrame, Series
 
 #Importing CSV files into Pandas Dataframe
-from pandas.core.arrays import ExtensionArray
 
 world_cups = pd.read_csv(r"C:\Users\Acer Swift 5\PycharmProjects\pythonProject\archive\WorldCups.csv")
 matches = pd.read_csv(r"C:\Users\Acer Swift 5\PycharmProjects\pythonProject\archive\WorldCupMatches.csv")
@@ -31,54 +27,53 @@ matches["Home Team Name"] = matches["Home Team Name"].str.replace("Germany FR","
 matches["Away Team Name"] = matches["Away Team Name"].str.replace("Germany FR","Germany")
 matches["Away Team Name"] = matches["Away Team Name"].str.replace("Soviet Union","Russia")
 
-matches.dropna(subset=["Year"], inplace=True)
-
 #Ranking and comparing all nations that have appeared in the final 4
 winners = world_cups["Winner"]
 runners_up = world_cups["Runners-Up"]
 third_place = world_cups["Third"]
 fourth_place = world_cups["Fourth"]
 
-winners1 = winners.value_counts()
-runners_up1 = runners_up.value_counts()
-third_place1 = third_place.value_counts()
-fourth_place1 = fourth_place.value_counts()
+winners = winners.value_counts()
+runners_up = runners_up.value_counts()
+third_place = third_place.value_counts()
+fourth_place = fourth_place.value_counts()
 
-teams = pd.concat([winners1, runners_up1, third_place1, fourth_place1], axis=1)
+teams = pd.concat([winners, runners_up, third_place, fourth_place], axis=1)
 teams = teams.fillna(0)
 teams = teams.astype(int)
 print(teams)
 
 #Growth of the competition over time
-goals_per_game = (world_cups.loc[ :, ["Year", "QualifiedTeams", "MatchesPlayed", "GoalsScored"]])
+
 gpg = world_cups["GoalsScored"] / world_cups["MatchesPlayed"]
 years= world_cups["Year"]
-gpgyears = pd.concat([gpg, years], axis=1)
 
+#Mapping average goals per game
 fig, ax = plt.subplots()
-ax.plot(years, gpg, linewidth=0.5)
+ax.plot(years, gpg, linewidth=0.5, linestyle="--", marker="*")
 ax.set(xlabel= "Year", ylabel = "Average Goals Per Game")
 ax.set_xticks(years, minor=True)
 ax.grid()
 plt.xlim(1930, 2014)
 #plt.show()
 
-#Tournaments with average goals per game of 3 or higher
-criteria = gpgyears[gpgyears.iloc[:,0]>= 3]
-print(criteria)
-
 #Goals per tournament over time
 sns.set_style("darkgrid")
-sns.set_palette("Blues")
 sns.catplot(x="Year", y="GoalsScored", data=world_cups,
-            kind="point", hue="GoalsScored")
+            kind="point", hue="GoalsScored", palette=sns.color_palette("flare", n_colors=17))
 plt.xticks(rotation=55)
-#plt.show()
+plt.show()
+
+#Tournaments with average goals per game of 3 or higher
+gpgyears = pd.concat([gpg, years], axis=1)
+avg_goals_loc = gpgyears[gpgyears.iloc[:,0]>= 3]
+avg_goals_loc = avg_goals_loc.round(decimals=1)
+print(avg_goals_loc)
 
 finals = matches[(matches["Stage"]=="Final")]
 finals = finals.loc[:, ["Year", "Home Team Name", "Home Team Goals", "Away Team Name", "Away Team Goals"]]
 finals = finals.drop_duplicates()
-print(finals)
+#print(finals)
 
 finals_world_cups = world_cups.merge(finals, on="Year")
 #print(finals_world_cups.head())
